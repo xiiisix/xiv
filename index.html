@@ -3,224 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual Playground</title>
-    <!-- FontAwesome for sleek media icons -->
+    <title>AnimeGlass | Premium Anime Mirrors</title>
+    <!-- FontAwesome for layout icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background: #05070a; }
-        canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
-
-        /* Liquid Glass Player Container */
-        .player-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 340px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4),
-                        inset 0 1px 2px rgba(255, 255, 255, 0.1);
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.4s ease;
-        }
-
-        .player-container:hover {
-            border-color: rgba(0, 255, 200, 0.2);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
-                        0 0 30px rgba(0, 255, 200, 0.05),
-                        inset 0 1px 2px rgba(255, 255, 255, 0.15);
-        }
-
-        /* Album Artwork with Liquid Glow */
-        .art-zone {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            margin-bottom: 25px;
-        }
-
-        .artwork {
-            width: 100%;
-            height: 100%;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.15);
-            overflow: hidden;
-        }
-
-        .artwork i {
-            font-size: 3.5rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-        }
-
-        /* Ambient background glow behind the art */
-        .art-glow {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-            filter: blur(20px);
-            opacity: 0.4;
-            z-index: -1;
-            border-radius: 18px;
-        }
-
-        /* Track Metadata */
-        .track-info {
-            text-align: center;
-            margin-bottom: 25px;
-            width: 100%;
-        }
-
-        .track-title {
-            color: #ffffff;
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .track-artist {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.85rem;
-            font-weight: 400;
-        }
-
-        /* Progress Bar */
-        .progress-block {
-            width: 100%;
-            margin-bottom: 25px;
-        }
-
-        .slider-wrapper {
-            position: relative;
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            cursor: pointer;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 35%; /* Mock dynamic progress */
-            background: linear-gradient(90deg, #00f2fe, #00ffc8);
-            box-shadow: 0 0 8px #00ffc8;
-            border-radius: 10px;
-            transition: width 0.1s linear;
-        }
-
-        .time-stamps {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.75rem;
-        }
-
-        /* Media Controls */
-        .controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 28px;
-            width: 100%;
-        }
-
-        .btn {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn:hover {
-            color: #00ffc8;
-            transform: scale(1.08);
-            text-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
-        }
-
-        .btn-play {
-            width: 54px;
-            height: 54px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-play:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #00f2fe;
-            border-color: rgba(0, 242, 254, 0.4);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2),
-                        inset 0 1px 1px rgba(255, 255, 255, 0.2);
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Canvas integration background for your active script -->
     <canvas id="playground"></canvas>
 
-    <div class="player-container">
-        <div class="art-zone">
-            <div class="artwork">
-                <i class="fa-solid fa-compact-disc"></i>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AnimeGlass</span>
             </div>
-            <div class="art-glow"></div>
-        </div>
-        
-        <div class="track-info">
-            <div class="track-title">Cyberphobia</div>
-            <div class="track-artist">Unknown Entity</div>
-        </div>
-
-        <div class="progress-block">
-            <div class="slider-wrapper" id="progress-container">
-                <div class="progress-fill" id="progress-bar"></div>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search mirrors...">
+                    <button class="search-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
             </div>
-            <div class="time-stamps">
-                <span id="current-time">1:14</span>
-                <span id="total-duration">3:30</span>
+
+            <div class="nav-links">
+                <a href="#" class="nav-link active">Home</a>
+                <a href="#" class="nav-link">Products</a>
+                <a href="#" class="nav-link">About</a>
+                <button class="login-btn"><i class="fa-solid fa-user"></i> Login</button>
             </div>
         </div>
+    </nav>
 
-        <div class="controls">
-            <button class="btn"><i class="fa-solid fa-backward-step"></i></button>
-            <button class="btn btn-play" id="play-trigger"><i class="fa-solid fa-play" id="play-icon"></i></button>
-            <button class="btn"><i class="fa-solid fa-forward-step"></i></button>
+    <!-- Main Container -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-text">
+                <h1 class="hero-title">Premium Anime Mirrors</h1>
+                <p class="hero-description">
+                    Transform your space with our exclusive collection of high-quality anime character mirrors. 
+                    Each piece is carefully crafted with vibrant designs that bring your favorite characters to life.
+                </p>
+                
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Happy Customers</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Anime Designs</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24h</span>
+                        <span class="stat-label">Fast Shipping</span>
+                    </div>
+                </div>
+
+                <button class="explore-btn">Explore Collection</button>
+            </div>
+
+            <div class="hero-showcase">
+                <div class="showcase-card glass">
+                    <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600" alt="Featured Anime Art" class="showcase-image">
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section Heading -->
+        <section class="products-section">
+            <h2 class="section-heading">Featured Mirrors</h2>
+            
+            <div class="products-grid">
+                <!-- Card 1 -->
+                <div class="product-card glass">
+                    <div class="product-image-container">
+                        <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=400" alt="Naruto Mirror" class="product-image">
+                    </div>
+                    <h3 class="product-title">Naruto Uzumaki Mirror</h3>
+                    <span class="product-price">$49.99</span>
+                    <button class="buy-btn">Buy Now</button>
+                </div>
+                <!-- Card 2 -->
+                <div class="product-card glass">
+                    <div class="product-image-container">
+                        <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=400" alt="Sailor Moon Mirror" class="product-image">
+                    </div>
+                    <h3 class="product-title">Sailor Moon Elegant Mirror</h3>
+                    <span class="product-price">$54.99</span>
+                    <button class="buy-btn">Buy Now</button>
+                </div>
+                <!-- Card 3 -->
+                <div class="product-card glass">
+                    <div class="product-image-container">
+                        <img src="https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=400" alt="Goku Mirror" class="product-image">
+                    </div>
+                    <h3 class="product-title">Goku Ultra Instinct Mirror</h3>
+                    <span class="product-price">$59.99</span>
+                    <button class="buy-btn">Buy Now</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features/Value Info Section -->
+        <section class="features-section glass">
+            <h2 class="features-heading">About AnimeGlass</h2>
+            <p class="features-subtext">We are passionate about bringing anime art to life through premium quality mirrors. Each piece is carefully designed and crafted to capture the essence of your favorite characters.</p>
+            
+            <div class="features-grid">
+                <div class="feature-item">
+                    <i class="fa-solid fa-palette"></i>
+                    <h3>Custom Designs</h3>
+                    <p>Unique artwork variants</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <h3>Fast Shipping</h3>
+                    <p>Delivered within 48 hours</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-gem"></i>
+                    <h3>Premium Quality</h3>
+                    <p>Durable and vibrant prints</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Area -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3>About AnimeGlass</h3>
+                <p>We create premium quality mirrors featuring your favorite anime characters. Each piece is crafted with attention to detail and vibrant colors that bring anime art to life.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+                    <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">All Products</a></li>
+                    <li><a href="#">Custom Orders</a></li>
+                    <li><a href="#">Shipping Info</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h3>Contact Info</h3>
+                <p><i class="fa-solid fa-location-dot"></i> Algeria, Algiers</p>
+                <p><i class="fa-solid fa-phone"></i> +213668218841</p>
+                <p><i class="fa-solid fa-envelope"></i> aniisxart@gmail.com</p>
+            </div>
         </div>
-    </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 AnimeGlass. All Rights Reserved.</p>
+        </div>
+    </footer>
 
-    <!-- Audio Element (Add your audio file link here) -->
-    <audio id="audio-engine" src=""></audio>
-
-    <script src="app.js"></script>
 </body>
 </html>
