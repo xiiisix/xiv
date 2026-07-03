@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 let particles = [];
 const mouse = { x: null, y: null, targetX: null, targetY: null, radius: 100 };
 
-// Lava Lamp Gradient Configuration Trackers
+// Lava Lamp Color Center Tracking Nodes
 let hueShift = 0;
 const liquidNodes = [
     { x: 0, y: 0, vx: 0.002, vy: 0.003, t: 0 },
@@ -31,7 +31,7 @@ window.addEventListener('mouseout', () => {
     mouse.y = null;
 });
 
-// Parallax Particle Logic
+// Deep Parallax Multi-Layered Particle System
 class Particle {
     constructor() {
         this.x = Math.random() * canvas.width;
@@ -41,7 +41,7 @@ class Particle {
         this.baseY = this.y;
         this.density = (Math.random() * 30) + 1;
         
-        // Define depth layers and opacity based on size
+        // Split visual particle depth and alpha mapping layers
         if (this.size < 1.5) {
             this.depth = 0.25; 
             this.color = 'rgba(0, 255, 200, 0.25)';
@@ -114,20 +114,20 @@ function init() {
 function drawLavaLampBackground() {
     hueShift += 0.12;
     
-    // Animate fluid center positions using trig waves
+    // Animate coordinates using smooth trig offsets
     liquidNodes.forEach(node => {
         node.t += 0.004;
         node.x = canvas.width / 2 + Math.sin(node.t * 1.1) * (canvas.width * 0.28);
         node.y = canvas.height / 2 + Math.cos(node.t * 0.7) * (canvas.height * 0.28);
     });
 
-    // Create a dynamic radial gradient mapping across coordinates
+    // Create complex dual-node radial blend structure
     let gradient = ctx.createRadialGradient(
         liquidNodes[0].x, liquidNodes[0].y, 20,
         liquidNodes[1].x, liquidNodes[1].y, Math.max(canvas.width, canvas.height)
     );
 
-    // Deep lava fluid color configurations shifting over time
+    // Liquid fluid dark ambient HSL nodes
     gradient.addColorStop(0, `hsl(${(hueShift + 140) % 360}, 65%, 7%)`);
     gradient.addColorStop(0.35, `hsl(${(hueShift + 190) % 360}, 60%, 4%)`);
     gradient.addColorStop(0.75, `hsl(${(hueShift + 240) % 360}, 45%, 2%)`);
@@ -138,9 +138,10 @@ function drawLavaLampBackground() {
 }
 
 function animate() {
-    // 1. Render the liquid fluid background first
+    // 1. Draw backdrop fluid
     drawLavaLampBackground();
     
+    // Smooth input interpolation values
     if (mouse.targetX !== null) {
         if (mouse.x === null) {
             mouse.x = mouse.targetX;
@@ -151,7 +152,7 @@ function animate() {
         }
     }
 
-    // 2. Render particles over the gradient mesh
+    // 2. Map structural particles
     for (let i = 0; i < particles.length; i++) {
         particles[i].update();
         particles[i].draw();
@@ -163,7 +164,7 @@ init();
 animate();
 
 
-// --- Music Player Core Logic ---
+// --- Music Player Component Control Interface ---
 const audioEngine = document.getElementById('audio-engine');
 const playTrigger = document.getElementById('play-trigger');
 const playIcon = document.getElementById('play-icon');
@@ -179,7 +180,7 @@ function togglePlayback() {
         isPlaying = false;
     } else {
         if(audioEngine.src && audioEngine.src !== window.location.href) {
-            audioEngine.play().catch(err => console.log("Audio file missing."));
+            audioEngine.play().catch(err => console.log("Audio target missing."));
         }
         playIcon.className = 'fa-solid fa-pause';
         isPlaying = true;
@@ -210,7 +211,7 @@ progressContainer.addEventListener('click', (e) => {
 });
 
 
-// --- Dynamic Matrix Title Static ---
+// --- Dynamic Matrix Title Static Engine ---
 function randomTitleStatic() {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':\",./<>?";
     let randomTitle = "";
