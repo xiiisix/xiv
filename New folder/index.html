@@ -4,14 +4,223 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visual Playground</title>
+    <!-- FontAwesome for sleek media icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background: #0a0a0a; }
-        canvas { display: block; width: 100vw; height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #05070a; }
+        canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        /* Liquid Glass Player Container */
+        .player-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 340px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.4s ease;
+        }
+
+        .player-container:hover {
+            border-color: rgba(0, 255, 200, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+                        0 0 30px rgba(0, 255, 200, 0.05),
+                        inset 0 1px 2px rgba(255, 255, 255, 0.15);
+        }
+
+        /* Album Artwork with Liquid Glow */
+        .art-zone {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin-bottom: 25px;
+        }
+
+        .artwork {
+            width: 100%;
+            height: 100%;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.15);
+            overflow: hidden;
+        }
+
+        .artwork i {
+            font-size: 3.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Ambient background glow behind the art */
+        .art-glow {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            filter: blur(20px);
+            opacity: 0.4;
+            z-index: -1;
+            border-radius: 18px;
+        }
+
+        /* Track Metadata */
+        .track-info {
+            text-align: center;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .track-title {
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+
+        /* Progress Bar */
+        .progress-block {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 35%; /* Mock dynamic progress */
+            background: linear-gradient(90deg, #00f2fe, #00ffc8);
+            box-shadow: 0 0 8px #00ffc8;
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+
+        .time-stamps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.75rem;
+        }
+
+        /* Media Controls */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            width: 100%;
+        }
+
+        .btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn:hover {
+            color: #00ffc8;
+            transform: scale(1.08);
+            text-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
+        }
+
+        .btn-play {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-play:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #00f2fe;
+            border-color: rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body>
+
     <canvas id="playground"></canvas>
+
+    <div class="player-container">
+        <div class="art-zone">
+            <div class="artwork">
+                <i class="fa-solid fa-compact-disc"></i>
+            </div>
+            <div class="art-glow"></div>
+        </div>
+        
+        <div class="track-info">
+            <div class="track-title">Cyberphobia</div>
+            <div class="track-artist">Unknown Entity</div>
+        </div>
+
+        <div class="progress-block">
+            <div class="slider-wrapper" id="progress-container">
+                <div class="progress-fill" id="progress-bar"></div>
+            </div>
+            <div class="time-stamps">
+                <span id="current-time">1:14</span>
+                <span id="total-duration">3:30</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="btn btn-play" id="play-trigger"><i class="fa-solid fa-play" id="play-icon"></i></button>
+            <button class="btn"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+    </div>
+
+    <!-- Audio Element (Add your audio file link here) -->
+    <audio id="audio-engine" src=""></audio>
+
     <script src="app.js"></script>
 </body>
 </html>
